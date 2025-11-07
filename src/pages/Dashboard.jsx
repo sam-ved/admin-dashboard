@@ -1,45 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, CircularProgress, Alert, Grid } from '@mui/material';
+import {
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  Alert,
+  Grid,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import AnalyticsCards from '../components/AnalyticsCards';
-import ComplaintsTable from '../components/ComplaintsTable';
 import DepartmentChart from '../components/DepartmentChart';
 import AreaChart from '../components/AreaChart';
 import { complaintService } from '../services/complaintService';
 import { socketService } from '../services/socketService';
 
-const Dashboard = () => {
+// Accept onPageChange to pass down to the cards
+const Dashboard = ({ onPageChange }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [analytics, setAnalytics] = useState(null);
-  const [complaints, setComplaints] = useState([]);
   const [departmentData, setDepartmentData] = useState([]);
   const [areaData, setAreaData] = useState([]);
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
-  // Fetch all data
+  // Fetch all dashboard summary data
   const fetchData = async () => {
     try {
       setLoading(true);
       setError('');
 
-      // Fetch all data in parallel
-      const [analyticsRes, complaintsRes, departmentRes, areaRes] = await Promise.all([
+      // Fetch summary data in parallel (ComplaintsTable is removed)
+      const [analyticsRes, departmentRes, areaRes] = await Promise.all([
         complaintService.getAnalytics(),
-        complaintService.getAllComplaints(),
         complaintService.getDepartmentStats(),
         complaintService.getAreaStats(),
       ]);
 
       setAnalytics(analyticsRes);
-      setComplaints(complaintsRes);
       setDepartmentData(departmentRes);
       setAreaData(areaRes);
       setLastUpdate(new Date());
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to load dashboard data. Please check your backend connection.');
+      setError(
+        'Failed to load dashboard data. Please check your backend connection.'
+      );
     } finally {
       setLoading(false);
     }
@@ -47,41 +53,20 @@ const Dashboard = () => {
 
   // Setup Socket.IO for real-time updates
   useEffect(() => {
-    // Initial data fetch
-    fetchData();
+    fetchData(); // Initial data fetch
 
-    // Connect to socket
     socketService.connect();
 
-    // Listen for new complaints
-    socketService.onNewComplaint((newComplaint) => {
-      console.log('New complaint received:', newComplaint);
-      setComplaints((prev) => [newComplaint, ...prev]);
-      // Refresh analytics
-      fetchData();
-    });
-
-    // Listen for complaint updates
-    socketService.onComplaintUpdate((updatedComplaint) => {
-      console.log('Complaint updated:', updatedComplaint);
-      setComplaints((prev) =>
-        prev.map((c) => (c.id === updatedComplaint.id ? updatedComplaint : c))
-      );
-      // Refresh analytics
-      fetchData();
-    });
-
-    // Listen for analytics updates
+    // Listen for new complaints or updates to refresh analytics
+    socketService.onNewComplaint(() => fetchData());
+    socketService.onComplaintUpdate(() => fetchData());
     socketService.onAnalyticsUpdate((newAnalytics) => {
       console.log('Analytics updated:', newAnalytics);
       setAnalytics(newAnalytics);
     });
 
     // Auto-refresh every 30 seconds as backup
-    const interval = setInterval(() => {
-      console.log('Auto-refreshing data...');
-      fetchData();
-    }, 30000); // 30 seconds
+    const interval = setInterval(fetchData, 30000); // 30 seconds
 
     // Cleanup on unmount
     return () => {
@@ -90,11 +75,6 @@ const Dashboard = () => {
       clearInterval(interval);
     };
   }, []);
-
-  // Handle manual refresh
-  const handleRefresh = () => {
-    fetchData();
-  };
 
   if (loading && !analytics) {
     return (
@@ -130,9 +110,9 @@ const Dashboard = () => {
         </Alert>
       )}
 
-      {/* Analytics Cards */}
+      {/* Analytics Cards - Pass onPageChange to make them clickable */}
       <Box sx={{ mb: 4 }}>
-        <AnalyticsCards analytics={analytics} />
+        <AnalyticsCards analytics={analytics} onPageChange={onPageChange} />
       </Box>
 
       {/* Charts */}
@@ -145,12 +125,7 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Complaints Table */}
-      <ComplaintsTable
-        complaints={complaints}
-        onRefresh={handleRefresh}
-        onStatusUpdate={fetchData}
-      />
+      {/* ComplaintsTable is now removed from the main dashboard */}
     </Container>
   );
 };

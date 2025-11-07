@@ -24,8 +24,20 @@ const AreaChart = ({ areaData }) => {
       {
         label: t('dashboard.areaChart'),
         data: areaData?.map((item) => item.count) || [],
-        backgroundColor: 'rgba(102, 126, 234, 0.8)',
-        borderColor: 'rgba(102, 126, 234, 1)',
+        
+        // This is the color enhancement
+        backgroundColor: [
+          '#667eea',
+          '#f093fb',
+          '#4facfe',
+          '#43e97b',
+          '#fa709a',
+          '#fee140',
+          '#30cfd0',
+          '#a8edea',
+        ],
+        borderColor: '#ffffff',
+        
         borderWidth: 1,
         borderRadius: 8,
       },

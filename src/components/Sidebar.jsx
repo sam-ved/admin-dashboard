@@ -55,14 +55,15 @@ const Sidebar = ({ currentPage, onPageChange }) => {
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-        },
+       width: drawerWidth,
+       flexShrink: 0,
+      '& .MuiDrawer-paper': {
+      width: drawerWidth,
+      boxSizing: 'border-box',
+      // Use theme colors for a consistent look
+      backgroundColor: 'primary.dark',
+      color: 'white',
+      },
       }}
     >
       <Toolbar>

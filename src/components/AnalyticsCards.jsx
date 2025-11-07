@@ -10,7 +10,8 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
-const AnalyticsCards = ({ analytics }) => {
+// Accept onPageChange as a prop
+const AnalyticsCards = ({ analytics, onPageChange }) => {
   const { t } = useTranslation();
 
   const cards = [
@@ -18,8 +19,9 @@ const AnalyticsCards = ({ analytics }) => {
       title: t('dashboard.totalComplaints'),
       value: analytics?.totalComplaints || 0,
       icon: <Assessment sx={{ fontSize: 40 }} />,
-      color: '#667eea',
-      bgColor: '#e8eaf6',
+      color: '#3f51b5', // Use theme primary color
+      bgColor: 'rgba(63, 81, 181, 0.1)',
+      page: 'complaints', // Page to navigate to
     },
     {
       title: t('dashboard.resolved'),
@@ -27,6 +29,7 @@ const AnalyticsCards = ({ analytics }) => {
       icon: <CheckCircle sx={{ fontSize: 40 }} />,
       color: '#4caf50',
       bgColor: '#e8f5e9',
+      page: 'complaints', // Page to navigate to
     },
     {
       title: t('dashboard.underReview'),
@@ -34,6 +37,7 @@ const AnalyticsCards = ({ analytics }) => {
       icon: <HourglassEmpty sx={{ fontSize: 40 }} />,
       color: '#ff9800',
       bgColor: '#fff3e0',
+      page: 'complaints', // Page to navigate to
     },
     {
       title: t('dashboard.pending'),
@@ -41,6 +45,7 @@ const AnalyticsCards = ({ analytics }) => {
       icon: <PendingActions sx={{ fontSize: 40 }} />,
       color: '#f44336',
       bgColor: '#ffebee',
+      page: 'complaints', // Page to navigate to
     },
     {
       title: t('dashboard.closed'),
@@ -48,6 +53,7 @@ const AnalyticsCards = ({ analytics }) => {
       icon: <Cancel sx={{ fontSize: 40 }} />,
       color: '#9e9e9e',
       bgColor: '#f5f5f5',
+      page: 'complaints', // Page to navigate to
     },
     {
       title: t('dashboard.feedback'),
@@ -55,18 +61,28 @@ const AnalyticsCards = ({ analytics }) => {
       icon: <Feedback sx={{ fontSize: 40 }} />,
       color: '#2196f3',
       bgColor: '#e3f2fd',
+      page: 'analytics', // Page to navigate to
     },
   ];
+
+  // Handle click, calling the function from AppLayout
+  const handleCardClick = (page) => {
+    if (onPageChange && page) {
+      onPageChange(page);
+    }
+  };
 
   return (
     <Grid container spacing={3}>
       {cards.map((card, index) => (
         <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
           <Card
+            onClick={() => handleCardClick(card.page)}
             sx={{
               height: '100%',
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               transition: 'transform 0.2s, box-shadow 0.2s',
+              cursor: 'pointer', // Add pointer cursor
               '&:hover': {
                 transform: 'translateY(-4px)',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.12)',

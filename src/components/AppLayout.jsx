@@ -2,12 +2,28 @@ import React, { useState } from 'react';
 import { Box, Toolbar } from '@mui/material';
 import Sidebar from './Sidebar';
 import Dashboard from '../pages/Dashboard';
+import Complaints from '../pages/Complaints'; // Import the new Complaints page
+import Analytics from '../pages/Analytics'; // Import the Analytics page
 
 const AppLayout = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+  };
+
+  // This function now renders the correct page based on state
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard onPageChange={handlePageChange} />;
+      case 'complaints':
+        return <Complaints />;
+      case 'analytics':
+        return <Analytics />;
+      default:
+        return <Dashboard onPageChange={handlePageChange} />;
+    }
   };
 
   return (
@@ -17,15 +33,14 @@ const AppLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: '#f5f7fa',
+          bgcolor: 'background.default', // Use theme background color
           minHeight: '100vh',
           overflow: 'auto',
         }}
       >
         <Toolbar /> {/* Spacer for top */}
-        {currentPage === 'dashboard' && <Dashboard />}
-        {currentPage === 'complaints' && <Dashboard />}
-        {currentPage === 'analytics' && <Dashboard />}
+        {/* Call the renderPage function */}
+        {renderPage()}
       </Box>
     </Box>
   );
