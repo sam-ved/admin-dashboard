@@ -105,11 +105,11 @@ const ComplaintsTable = ({ complaints, onRefresh, onStatusUpdate }) => {
             onChange={(e) => handleStatusChange(params.row.id, e.target.value)}
             sx={{ fontSize: 13 }}
           >
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="under review">Under Review</MenuItem>
-            <MenuItem value="under resolving">Under Resolving</MenuItem>
-            <MenuItem value="resolved">Resolved</MenuItem>
-            <MenuItem value="closed">Closed</MenuItem>
+            <MenuItem value="Raised">Raised</MenuItem>
+             <MenuItem value="Acknowledged">Acknowledged</MenuItem>
+             <MenuItem value="InProgress">In Progress</MenuItem>
+             <MenuItem value="Resolved">Resolved</MenuItem>
+             <MenuItem value="Closed">Closed</MenuItem>
           </Select>
         </FormControl>
       ),

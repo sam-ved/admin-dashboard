@@ -23,8 +23,27 @@ const Complaints = () => {
     try {
       setLoading(true);
       setError('');
-      const complaintsRes = await complaintService.getAllComplaints();
-      setComplaints(complaintsRes);
+      // We are now calling the '/complaints/view' endpoint
+     const response = await complaintService.getAllComplaints();
+     
+     // The backend response is { message, count, complaints }
+     const complaintsRes = response.complaints || [];
+ 
+     // Map the backend data to fit the table component
+     const formattedComplaints = complaintsRes.map(c => ({
+       ...c,
+       id: c.id,
+       complainerName: c.user?.name,
+       email: c.user?.email,
+       // mobile: c.user?.mobile, // 'mobile' is not in your prisma schema
+       area: c.location, // Map 'location' to 'area'
+       department: c.department || 'N/A',
+       status: c.status,
+       feedback: c.feedbacks?.rating ? `${c.feedbacks.rating} stars` : 'No feedback',
+       createdAt: c.createdAt,
+     }));
+ 
+     setComplaints(formattedComplaints);
       setLastUpdate(new Date());
     } catch (err) {
       console.error('Error fetching complaints:', err);

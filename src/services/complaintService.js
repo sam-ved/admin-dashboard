@@ -3,28 +3,28 @@ import api from './api';
 export const complaintService = {
   // Existing functions...
   getAllComplaints: async () => {
-    const response = await api.get('/complaints');
+    const response = await api.get('/complaints/view');
     return response.data;
   },
 
   getAnalytics: async () => {
-    const response = await api.get('/complaints/analytics');
+    const response = await api.get('/analytics/dashboard');
     return response.data;
   },
 
   getDepartmentStats: async () => {
-    const response = await api.get('/complaints/department-stats');
+    const response = await api.get('/analytics/by-department');
     return response.data;
   },
 
   getAreaStats: async () => {
-    const response = await api.get('/complaints/area-stats');
+    const response = await api.get('/heatmap/area-stats');
     return response.data;
   },
 
   updateComplaintStatus: async (complaintId, status) => {
-    const response = await api.patch(`/complaints/${complaintId}/status`, {
-      status,
+    const response = await api.put(`/complaints/${complaintId}/status`, {
+      newStatus: status,
     });
     return response.data;
   },

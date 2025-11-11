@@ -94,16 +94,23 @@ const Login = ({ onLoginSuccess }) => {
     }
 
     try {
-      alert('Registration successful! You can now login.');
-      setIsLogin(true);
-      setSignupData({
-        name: '',
-        email: '',
-        username: '',
-        mobile: '',
-        password: '',
-        confirmPassword: '',
-      });
+      // This connects to authService, which you fixed in Part 1
+     const result = await authService.signup(signupData);
+ 
+     if (result.success) {
+       alert('Registration successful! You can now login.');
+       setIsLogin(true);
+       setSignupData({
+         name: '',
+         email: '',
+         username: '',
+         mobile: '',
+         password: '',
+         confirmPassword: '',
+       });
+     } else {
+       setError(result.error);
+     }
     } catch (error) {
       setError(error.response?.data?.message || 'Registration failed. Please try again.');
       console.error('Signup error:', error);

@@ -42,29 +42,29 @@ export const socketService = {
   // Listen for new complaints
   onNewComplaint: (callback) => {
     if (socket) {
-      socket.on('newComplaint', callback);
+      socket.on('new-complaint', callback);
     }
   },
 
   // Listen for complaint status updates
   onComplaintUpdate: (callback) => {
     if (socket) {
-      socket.on('complaintUpdate', callback);
+      socket.on('complaint-status-update', callback);
     }
   },
 
   // Listen for analytics updates
   onAnalyticsUpdate: (callback) => {
     if (socket) {
-      socket.on('analyticsUpdate', callback);
+      socket.off('analyticsUpdate', callback);
     }
   },
 
   // Remove all listeners
   removeListeners: () => {
     if (socket) {
-      socket.off('newComplaint');
-      socket.off('complaintUpdate');
+      socket.off('new-complaint');
+      socket.off('complaint-status-updated');
       socket.off('analyticsUpdate');
     }
   },

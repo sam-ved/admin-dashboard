@@ -5,7 +5,7 @@ export const authService = {
   // Login function
   login: async (credentials) => {
     try {
-      const response = await api.post('/admin/login', credentials);
+      const response = await api.post('/auth/login', credentials);
       const { token, user } = response.data;
       
       localStorage.setItem('adminToken', token);
@@ -23,7 +23,7 @@ export const authService = {
   // Signup function (NEW)
   signup: async (userData) => {
     try {
-      const response = await api.post('/admin/register', userData);
+      const response = await api.post('/auth/register', userData);
       return { success: true, data: response.data };
     } catch (error) {
       return {
