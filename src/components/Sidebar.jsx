@@ -61,7 +61,7 @@ const Sidebar = ({ currentPage, onPageChange }) => {
       width: drawerWidth,
       boxSizing: 'border-box',
       // Use theme colors for a consistent look
-      backgroundColor: 'primary.dark',
+      backgroundColor: '#111827',
       color: 'white',
       },
       }}

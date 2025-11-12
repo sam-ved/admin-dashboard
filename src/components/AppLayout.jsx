@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Box, Toolbar } from '@mui/material';
+import { Box, Toolbar, Container } from '@mui/material';
 import Sidebar from './Sidebar';
+import Header from './Header'; // Import Header
+import Footer from './Footer'; // Import Footer
 import Dashboard from '../pages/Dashboard';
-import Complaints from '../pages/Complaints'; // Import the new Complaints page
-import Analytics from '../pages/Analytics'; // Import the Analytics page
+import Complaints from '../pages/Complaints';
+import Analytics from '../pages/Analytics';
 
 const AppLayout = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -12,7 +14,6 @@ const AppLayout = () => {
     setCurrentPage(page);
   };
 
-  // This function now renders the correct page based on state
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
@@ -28,19 +29,33 @@ const AppLayout = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      {/* Header is now added */}
+      <Header />
+      
       <Sidebar currentPage={currentPage} onPageChange={handlePageChange} />
+      
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: 'background.default', // Use theme background color
+          bgcolor: 'background.default',
           minHeight: '100vh',
           overflow: 'auto',
+          // Use flexbox to make the Footer stick to the bottom
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Toolbar /> {/* Spacer for top */}
-        {/* Call the renderPage function */}
-        {renderPage()}
+        {/* This Toolbar acts as a spacer for the fixed Header */}
+        <Toolbar /> 
+        
+        {/* This Container holds the page content */}
+        <Container maxWidth="xl" sx={{ py: 4, flexGrow: 1 }}>
+          {renderPage()}
+        </Container>
+        
+        {/* Footer is now added */}
+        <Footer />
       </Box>
     </Box>
   );

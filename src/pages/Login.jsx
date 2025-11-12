@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Card,
   TextField,
   Button,
   Typography,
@@ -12,6 +11,10 @@ import {
   Select,
   FormControl,
   Container,
+  Paper,
+  Avatar,
+  Link,
+  useTheme,
 } from '@mui/material';
 import {
   Visibility,
@@ -21,17 +24,18 @@ import {
   Email,
   Phone,
   AccountCircle,
-  Language,
 } from '@mui/icons-material';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { authService } from '../services/authService';
 
-const MotionCard = motion(Card);
-const MotionBox = motion(Box);
+const EMBLEM_URL =
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/120px-Emblem_of_India.svg.png';
 
 const Login = ({ onLoginSuccess }) => {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -71,13 +75,14 @@ const Login = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
-    const result = await authService.login(loginData);
-
+    const result = await authService.login({
+      email: loginData.identifier,
+      password: loginData.password,
+    });
     if (result.success) {
       onLoginSuccess();
     } else {
-      setError(result.error);
+      setError(result.error || 'Login failed');
     }
     setLoading(false);
   };
@@ -86,551 +91,464 @@ const Login = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     if (signupData.password !== signupData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
-
     try {
-      // This connects to authService, which you fixed in Part 1
-     const result = await authService.signup(signupData);
- 
-     if (result.success) {
-       alert('Registration successful! You can now login.');
-       setIsLogin(true);
-       setSignupData({
-         name: '',
-         email: '',
-         username: '',
-         mobile: '',
-         password: '',
-         confirmPassword: '',
-       });
-     } else {
-       setError(result.error);
-     }
+      const result = await authService.signup({
+        name: signupData.name,
+        email: signupData.email,
+        username: signupData.username,
+        mobile: signupData.mobile,
+        password: signupData.password,
+      });
+      if (result.success) {
+        alert('Registration successful! You can now login.');
+        setIsLogin(true);
+        setSignupData({
+          name: '',
+          email: '',
+          username: '',
+          mobile: '',
+          password: '',
+          confirmPassword: '',
+        });
+      } else {
+        setError(result.error);
+      }
     } catch (error) {
-      setError(error.response?.data?.message || 'Registration failed. Please try again.');
-      console.error('Signup error:', error);
+      setError(error.response?.data?.message || 'Registration failed.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.95 },
   };
 
   return (
     <Box
       sx={{
         minHeight: '100vh',
+        width: '100vw',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
         position: 'relative',
         overflow: 'hidden',
-        p: 2,
+        // Full page gradient background with animation
+        background: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 20%, rgba(240, 147, 251, 0.2) 0%, transparent 50%)
+          `,
+          animation: 'gradientShift 15s ease infinite',
+        },
+        '@keyframes gradientShift': {
+          '0%, 100%': {
+            opacity: 1,
+          },
+          '50%': {
+            opacity: 0.8,
+          },
+        },
       }}
     >
-      {/* Floating Animated Shapes */}
-      <MotionBox
-        animate={{
-          y: [0, -30, 0],
-          rotate: [0, 180, 360],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        sx={{
-          position: 'absolute',
-          width: 300,
-          height: 300,
-          borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
-          background: 'linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-          top: '10%',
-          left: '10%',
-          filter: 'blur(2px)',
-        }}
-      />
-      <MotionBox
-        animate={{
-          y: [0, 40, 0],
-          rotate: [360, 180, 0],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-        sx={{
-          position: 'absolute',
-          width: 250,
-          height: 250,
-          borderRadius: '70% 30% 30% 70% / 70% 70% 30% 30%',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-          bottom: '15%',
-          right: '15%',
-          filter: 'blur(2px)',
-        }}
-      />
-      <MotionBox
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.2, 0.4, 0.2],
-          rotate: [0, 90, 0],
-        }}
-        transition={{ duration: 25, repeat: Infinity }}
-        sx={{
-          position: 'absolute',
-          width: 400,
-          height: 400,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.1), transparent)',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
-
-      {/* Main Card Container */}
-      <Container maxWidth="sm">
-        <MotionCard
-          initial={{ scale: 0.8, opacity: 0, y: 50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
+      {/* Animated floating particles */}
+      {[...Array(20)].map((_, i) => (
+        <Box
+          key={i}
           sx={{
-            position: 'relative',
-            zIndex: 1,
-            p: 4,
-            boxShadow: '0 30px 90px rgba(0,0,0,0.3)',
-            borderRadius: 5,
-            backdropFilter: 'blur(20px)',
-            background: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid rgba(255,255,255,0.3)',
-          }}
-        >
-          {/* Glowing Effect on Card */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: -2,
-              left: -2,
-              right: -2,
-              bottom: -2,
-              borderRadius: 5,
-              background: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb, #667eea)',
-              backgroundSize: '300% 300%',
-              animation: 'gradientShift 5s ease infinite',
-              zIndex: -1,
-              filter: 'blur(10px)',
-              opacity: 0.5,
-              '@keyframes gradientShift': {
-                '0%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
-                '100%': { backgroundPosition: '0% 50%' },
+            position: 'absolute',
+            width: Math.random() * 300 + 50,
+            height: Math.random() * 300 + 50,
+            borderRadius: '50%',
+            background: `radial-gradient(circle, rgba(255,255,255,${Math.random() * 0.1}) 0%, transparent 70%)`,
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animation: `float ${Math.random() * 20 + 10}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 5}s`,
+            '@keyframes float': {
+              '0%, 100%': {
+                transform: 'translate(0, 0) scale(1)',
               },
-            }}
-          />
+              '50%': {
+                transform: `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) scale(1.1)`,
+              },
+            },
+          }}
+        />
+      ))}
 
-          {/* Language Selector */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <FormControl size="small" sx={{ minWidth: 130 }}>
+      {/* Government branding header */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 30,
+          left: 40,
+          display: 'flex',
+          alignItems: 'center',
+          zIndex: 10,
+        }}
+      >
+        <Avatar src={EMBLEM_URL} sx={{ width: 48, height: 48, mr: 2 }} />
+        <Box>
+          <Typography variant="h6" fontWeight="bold" sx={{ color: 'white' }}>
+            Government of India
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+            National Informatics Centre
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Main login card - centered */}
+      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 50 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, type: 'spring' }}
+        >
+          <Paper
+            elevation={24}
+            sx={{
+              p: 5,
+              borderRadius: 5,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 30px 90px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.3)',
+            }}
+          >
+            {/* Language Selector */}
+            <FormControl size="small" sx={{ mb: 2, float: 'right' }}>
               <Select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Language sx={{ color: '#667eea' }} />
-                  </InputAdornment>
-                }
-                sx={{
-                  borderRadius: 2,
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#667eea',
-                  },
-                }}
+                sx={{ borderRadius: 2 }}
               >
                 <MenuItem value="en">English</MenuItem>
                 <MenuItem value="hi">हिंदी</MenuItem>
                 <MenuItem value="mr">मराठी</MenuItem>
               </Select>
             </FormControl>
-          </Box>
 
-          {/* Logo/Icon with Animation */}
-          <MotionBox
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{ duration: 3, repeat: Infinity }}
-            sx={{ textAlign: 'center', mb: 2 }}
-          >
-            <Box
-              sx={{
-                width: 100,
-                height: 100,
-                margin: '0 auto',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 10px 30px rgba(102, 126, 234, 0.4)',
-              }}
-            >
-              <Typography sx={{ fontSize: 50 }}>🏛️</Typography>
+            {/* Logo and Title */}
+            <Box sx={{ textAlign: 'center', mb: 3, clear: 'both' }}>
+              <motion.div
+                animate={{
+                  scale: [1, 1.05, 1],
+                  rotate: [0, 5, -5, 0],
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <Avatar
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    margin: '0 auto',
+                    mb: 2,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 10px 30px rgba(102, 126, 234, 0.4)',
+                  }}
+                >
+                  <Typography sx={{ fontSize: 40 }}>🏛️</Typography>
+                </Avatar>
+              </motion.div>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 1,
+                }}
+              >
+                {t('login.title')}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {t('login.subtitle')}
+              </Typography>
             </Box>
-          </MotionBox>
 
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Typography
-              variant="h4"
-              gutterBottom
-              sx={{
-                fontWeight: 'bold',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              {t('login.title')}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {t('login.subtitle')}
-            </Typography>
-          </Box>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <AnimatePresence mode="wait">
-            {isLogin ? (
-              <motion.form
-                key="login"
-                variants={formVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.3 }}
-                onSubmit={handleLoginSubmit}
-              >
-                <Typography variant="h6" gutterBottom sx={{ mb: 2, color: '#333' }}>
-                  {t('login.welcome')}
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  label={t('login.identifier')}
-                  name="identifier"
-                  value={loginData.identifier}
-                  onChange={handleLoginChange}
-                  margin="normal"
-                  required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': {
-                        borderColor: '#667eea',
-                      },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonOutline sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label={t('login.password')}
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={loginData.password}
-                  onChange={handleLoginChange}
-                  margin="normal"
-                  required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': {
-                        borderColor: '#667eea',
-                      },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlined sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)}>
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <MotionBox
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    type="submit"
-                    disabled={loading}
-                    sx={{
-                      mt: 3,
-                      py: 1.5,
-                      borderRadius: 2,
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #5568d3 0%, #6a4091 100%)',
-                        boxShadow: '0 12px 32px rgba(102, 126, 234, 0.6)',
-                      },
-                      transition: 'all 0.3s',
-                    }}
-                  >
-                    {loading ? '...' : t('login.loginButton')}
-                  </Button>
-                </MotionBox>
-
-                <Button
-                  fullWidth
-                  onClick={() => setIsLogin(false)}
-                  sx={{
-                    mt: 2,
-                    color: '#667eea',
-                    '&:hover': {
-                      background: 'rgba(102, 126, 234, 0.1)',
-                    },
-                  }}
-                >
-                  {t('login.switchToSignup')}
-                </Button>
-              </motion.form>
-            ) : (
-              <motion.form
-                key="signup"
-                variants={formVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.3 }}
-                onSubmit={handleSignupSubmit}
-              >
-                <Typography variant="h6" gutterBottom sx={{ mb: 2, color: '#333' }}>
-                  {t('signup.title')}
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  label={t('signup.name')}
-                  name="name"
-                  value={signupData.name}
-                  onChange={handleSignupChange}
-                  margin="normal"
-                  required
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': { borderColor: '#667eea' },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccountCircle sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label={t('signup.email')}
-                  name="email"
-                  type="email"
-                  value={signupData.email}
-                  onChange={handleSignupChange}
-                  margin="normal"
-                  required
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': { borderColor: '#667eea' },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Email sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label={t('signup.username')}
-                  name="username"
-                  value={signupData.username}
-                  onChange={handleSignupChange}
-                  margin="normal"
-                  required
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': { borderColor: '#667eea' },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonOutline sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label={t('signup.mobile')}
-                  name="mobile"
-                  value={signupData.mobile}
-                  onChange={handleSignupChange}
-                  margin="normal"
-                  required
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': { borderColor: '#667eea' },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Phone sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label={t('signup.password')}
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={signupData.password}
-                  onChange={handleSignupChange}
-                  margin="normal"
-                  required
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': { borderColor: '#667eea' },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlined sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)}>
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label={t('signup.confirmPassword')}
-                  name="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
-                  value={signupData.confirmPassword}
-                  onChange={handleSignupChange}
-                  margin="normal"
-                  required
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': { borderColor: '#667eea' },
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlined sx={{ color: '#667eea' }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <MotionBox whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    type="submit"
-                    disabled={loading}
-                    sx={{
-                      mt: 3,
-                      py: 1.5,
-                      borderRadius: 2,
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #5568d3 0%, #6a4091 100%)',
-                        boxShadow: '0 12px 32px rgba(102, 126, 234, 0.6)',
-                      },
-                    }}
-                  >
-                    {loading ? '...' : t('login.signupButton')}
-                  </Button>
-                </MotionBox>
-
-                <Button
-                  fullWidth
-                  onClick={() => setIsLogin(true)}
-                  sx={{
-                    mt: 2,
-                    color: '#667eea',
-                    '&:hover': {
-                      background: 'rgba(102, 126, 234, 0.1)',
-                    },
-                  }}
-                >
-                  {t('login.switchToLogin')}
-                </Button>
-              </motion.form>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+                {error}
+              </Alert>
             )}
-          </AnimatePresence>
-        </MotionCard>
+
+            {/* Animated form */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={isLogin ? 'login' : 'signup'}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <form onSubmit={isLogin ? handleLoginSubmit : handleSignupSubmit}>
+                  {isLogin ? (
+                    <>
+                      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                        {t('login.welcome')}
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        label={t('login.identifier')}
+                        name="identifier"
+                        value={loginData.identifier}
+                        onChange={handleLoginChange}
+                        margin="normal"
+                        required
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '&:hover fieldset': {
+                              borderColor: theme.palette.primary.main,
+                            },
+                          },
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <PersonOutline color="primary" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label={t('login.password')}
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={loginData.password}
+                        onChange={handleLoginChange}
+                        margin="normal"
+                        required
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '&:hover fieldset': {
+                              borderColor: theme.palette.primary.main,
+                            },
+                          },
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LockOutlined color="primary" />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          type="submit"
+                          disabled={loading}
+                          sx={{
+                            mt: 3,
+                            py: 1.8,
+                            borderRadius: 2,
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #5568d3 0%, #6a4091 100%)',
+                              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.6)',
+                            },
+                          }}
+                        >
+                          {loading ? '...' : t('login.loginButton')}
+                        </Button>
+                      </motion.div>
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                        {t('signup.title')}
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        label={t('signup.name')}
+                        name="name"
+                        value={signupData.name}
+                        onChange={handleSignupChange}
+                        margin="normal"
+                        required
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AccountCircle color="primary" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label={t('signup.email')}
+                        name="email"
+                        type="email"
+                        value={signupData.email}
+                        onChange={handleSignupChange}
+                        margin="normal"
+                        required
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Email color="primary" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label={t('signup.mobile')}
+                        name="mobile"
+                        value={signupData.mobile}
+                        onChange={handleSignupChange}
+                        margin="normal"
+                        required
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Phone color="primary" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label={t('signup.password')}
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={signupData.password}
+                        onChange={handleSignupChange}
+                        margin="normal"
+                        required
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LockOutlined color="primary" />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label={t('signup.confirmPassword')}
+                        name="confirmPassword"
+                        type={showPassword ? 'text' : 'password'}
+                        value={signupData.confirmPassword}
+                        onChange={handleSignupChange}
+                        margin="normal"
+                        required
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LockOutlined color="primary" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          type="submit"
+                          disabled={loading}
+                          sx={{
+                            mt: 3,
+                            py: 1.8,
+                            borderRadius: 2,
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #5568d3 0%, #6a4091 100%)',
+                              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.6)',
+                            },
+                          }}
+                        >
+                          {loading ? '...' : t('login.signupButton')}
+                        </Button>
+                      </motion.div>
+                    </>
+                  )}
+
+                  <Button
+                    fullWidth
+                    onClick={() => setIsLogin(!isLogin)}
+                    sx={{
+                      mt: 2,
+                      color: theme.palette.primary.main,
+                      '&:hover': {
+                        background: 'rgba(102, 126, 234, 0.1)',
+                      },
+                    }}
+                  >
+                    {isLogin ? t('login.switchToSignup') : t('login.switchToLogin')}
+                  </Button>
+                </form>
+              </motion.div>
+            </AnimatePresence>
+          </Paper>
+        </motion.div>
+
+        {/* Support Link */}
+        <Typography
+          variant="body2"
+          sx={{ mt: 3, textAlign: 'center', color: 'rgba(255,255,255,0.9)' }}
+        >
+          Having trouble?{' '}
+          <Link href="#" underline="hover" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Contact Support
+          </Link>
+        </Typography>
       </Container>
+
+      {/* Footer */}
+      <Typography
+        variant="body2"
+        sx={{
+          position: 'absolute',
+          bottom: 20,
+          color: 'rgba(255,255,255,0.7)',
+        }}
+      >
+        © {new Date().getFullYear()} National Informatics Centre
+      </Typography>
     </Box>
   );
 };
